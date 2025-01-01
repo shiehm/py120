@@ -8,6 +8,9 @@ Create a Car class that meets these requirements:
 - Write some code to test the methods.
 """
 
+from functools import total_ordering
+
+@total_ordering
 class Car:
     def __init__(self, model, year, color):
         self._model = model
@@ -16,6 +19,21 @@ class Car:
         self._speed = 0
         self._engine = 0
     
+    def __eq__(self, other):
+        return self.model == other.model
+
+    def __lt__(self, other):
+        return self.year < other.year
+    
+    def __str__(self):
+        return f'{self.model} {self.year} {self.color}'
+
+    def __repr__(self):
+        model = repr(self.model)
+        year = repr(self.year)
+        color = repr(self.color)
+        return f'Car({model}, {year}, {color})'
+
     @staticmethod
     def drivers_manual():
         print('Here is a big manual.')
@@ -105,3 +123,11 @@ print(f'MPG is {Car.mpg(100,10)}')
 
 car1.drivers_manual()
 Car.drivers_manual()
+
+car1 = Car('Toyota', 1992, 'Blue')
+car2 = Car('Toyota', 1993, 'Blue')
+
+print(car1)
+print(repr(car1))
+print(car1 < car2)
+print(car2 > car1) # Issue here with functools

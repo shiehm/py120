@@ -5,9 +5,29 @@ Requirements
 
 Note: In general, you shouldn't customize + and += when you need to create an 
 unwanted new object. Use something like an add_vote method instead.
+
+The key difference between += (__iadd__) and + (__add__) is that:
+
++= modifies the existing object (in-place)
++ must create and return a new object
+
+So if we implemented __add__, this would happen:
+
+candidate = Candidate("Jane")  # Original object assigned to 'candidate'
+result = candidate + 5        # Creates new Candidate object assigned to 'result'
+# Now we have two objects: 'candidate' and 'result'
+
+This could lead to problems because:
+
+Multiple objects represent the same candidate
+Each object has its own separate vote count
+Vote totals could become inconsistent
+
+That's why __iadd__ is better here - it modifies the single, original object.
 """
 
 class Election:
+    
     def __init__(self, candidates):
         self.candidates = candidates
     

@@ -1,3 +1,7 @@
+class TowMixin:
+    def tow(self):
+        print('I can tow a trailer!')
+
 class Vehicle:
     def __init__(self, year):
         self._year = year
@@ -10,7 +14,7 @@ class Car(Vehicle):
     def __init__(self, year):
         super().__init__(year)
 
-class Truck(Vehicle):
+class Truck(Vehicle, TowMixin):
     def __init__(self, year, bed_type):
         super().__init__(year)
         self._bed_type = bed_type
@@ -31,3 +35,8 @@ try:
 except:
     print('AttributeError: "Car" object has no attribute "bed_type"')
 
+truck1.tow()        # I can tow a trailer!
+try:
+    car1.tow()
+except AttributeError:
+    print("AttributeError: 'Car' object has no attribute 'tow'")

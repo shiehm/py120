@@ -1,7 +1,6 @@
 class Banner:
-    def __init__(self, message, width=20):
+    def __init__(self, message):
         self.message = message
-        self.width = width - 2
     
     @property
     def message(self):
@@ -20,10 +19,10 @@ class Banner:
                           self._horizontal_rule()])
 
     def _empty_line(self):
-        return f"| {' ' * self.width} |"
+        return f"| {' ' * len(self.message)} |"
 
     def _horizontal_rule(self):
-        return f"+-{'-' * self.width}-+"
+        return f"+-{'-' * len(self.message)}-+"
 
     def _message_line(self):
         return f"| {self.message} |"

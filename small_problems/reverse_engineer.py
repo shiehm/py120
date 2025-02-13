@@ -22,8 +22,8 @@ class Transform:
         return self.data.upper()
 
     @classmethod
-    def lowercase(cls, str_):
-        return str_.lower()
+    def lowercase(cls, text):
+        return text.lower()
 
 my_data = Transform('abc')
 print(my_data.uppercase())              # ABC

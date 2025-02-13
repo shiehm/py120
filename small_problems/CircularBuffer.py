@@ -167,3 +167,24 @@ print(buffer2.get())          # 5
 print(buffer2.get())          # 6
 print(buffer2.get())          # 7
 print(buffer2.get())          # None
+
+
+"""
+This is a really ingenious solution, in that it doesn't care about the exact 
+places but rather makes index 0 always the oldest, and always trims the size 
+of the list to match buffer size.
+
+class CircularBuffer:
+    def __init__(self, size):
+        self.size = size
+        self.buffer = []
+
+    def put(self, object):
+        if len(self.buffer) == self.size:
+            self.buffer.pop(0)                       
+
+        self.buffer.append(object)
+
+    def get(self):
+        return self.buffer.pop(0) if self.buffer else None
+"""

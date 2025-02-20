@@ -14,18 +14,37 @@ class Human(Player):
         # Public method b/c RPSGame calls it
         # This method is how the player chooses rock, paper or scissors
         print(f'Choose a move in {Player.CHOICES}')
-        self.move = input().lower()
-
-        while self.move not in Player.CHOICES:
+        choice = input().lower()
+        while choice not in Player.CHOICES:
             print(f'Choose a move in {Player.CHOICES}')
-            self.move = input().lower()
+            choice = input().lower()
+        self.move = Move(choice)
 
 class Computer(Player):
     def __init__(self):
         super().__init__()
 
     def choose(self):
-        self.move = random.choice(Player.CHOICES)
+        choice = random.choice(Player.CHOICES)
+        self.move = Move(choice)
+
+class Move:
+    def __init__(self, choice):
+        self._choice = choice
+    
+    def __str__(self):
+        return str(self._choice)
+    
+    # Only needs this one class because this is the only one used >
+    def __gt__(self, other):
+        if not isinstance(other, Move):
+            raise TypeError('Can only compare 2 Move class objects.')
+        
+        return (
+            (self._choice == 'rock' and other._choice == 'scissors') or
+            (self._choice == 'paper' and other._choice == 'rock') or
+            (self._choice == 'scissors' and other._choice == 'paper')
+            )
 
 # Start here, this is the proceedure of the game
 class RPSGame:
@@ -41,19 +60,11 @@ class RPSGame:
         print('Thanks for playing Rock Paper Scissors. Goodbye!')
     
     def _human_wins(self):
-        return (
-            (self._human.move == 'rock' and self._computer.move == 'scissors') or
-            (self._human.move == 'paper' and self._computer.move == 'rock') or
-            (self._human.move == 'scissors' and self._computer.move == 'paper')
-            )
-    
+        return self._human.move > self._computer.move
+
     def _computer_wins(self):
-        return (
-            (self._human.move == 'rock' and self._computer.move == 'paper') or
-            (self._human.move == 'paper' and self._computer.move == 'scissors') or
-            (self._human.move == 'scissors' and self._computer.move == 'rock')
-            )
-    
+        return self._computer.move > self._human.move
+
     def display_winner(self):
         print(f'You chose: {self._human.move}')
         print(f'The computer chose: {self._computer.move}')

@@ -53,16 +53,22 @@ class RPSGame:
         # The Player objects are collaborators of RPSGame
         self._human = Human()
         self._computer = Computer()
-        self._total_games = 0
-        self.get_games()
+        self.total_games = 0 
         
-    def get_games(self):
-        while True:
-            games = input('How many games do you want to play? ')
-            if games.isdigit():
-                self._total_games = int(games)
-                break
+    @property
+    def total_games(self):
+        self._total_games = input('')
+    
+    @total_games.setter
+    def total_games(self, value):
+        self._total_games = int(value) 
+        
+    def get_games
+        games = input('How many games do you want to play? ')
+        if not games.isdigit():
             print('Invalid response, please enter a digit')
+            games = input()
+        self.total_games = int(total_games) 
         
     def _display_welcome_message(self):
         print('Welcome to Rock Paper Scissors!')
@@ -77,10 +83,10 @@ class RPSGame:
         return self._computer.move > self._human.move
         
     def _display_score(self):
-        print(f'Human Score: {self._human.score}')
+        print(f'Human Score: {self._human.score})
         print(f'Computer Score: {self._computer.score}')
 
-    def _display_round_winner(self):
+    def _display_winner(self):
         print(f'You chose: {self._human.move}')
         print(f'The computer chose: {self._computer.move}')
         
@@ -92,15 +98,6 @@ class RPSGame:
             print('Computer Wins!')
         else:
             print('Tie!')
-    
-    def _continue_playing(self):
-        return max(self._human.score, self._computer.score) < (self._total_games / 2)
-    
-    def _display_winner(self):
-        if self._human.score > self._computer.score:
-            print(f'Player Wins {self._human.score} out of {self._total_games} games!')
-        else:
-            print(f'Computer Wins {self._computer.score} out of {self._total_games} games!')
 
     def _play_again(self):
         print('Play again? Y/N')
@@ -109,15 +106,15 @@ class RPSGame:
     
     def play(self):
         self._display_welcome_message()
+        
         while True:
-            while self._continue_playing():
-                self._human.choose()
-                self._computer.choose()
-                self._display_round_winner()
-                self._display_score()
+            while max(self._human.score, self._computer.score) < 
+            self._human.choose()
+            self._computer.choose()
             self._display_winner()
             if not self._play_again():
                 break
+        
         self._display_goodbye_message()
         
 game = RPSGame()

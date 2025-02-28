@@ -28,11 +28,59 @@ class Human(Player):
         self._history.append(choice)
 
 class Computer(Player):
+    PERSONALITIES = ('normal', 'r2d2', 'hal', 'daneel')
+    
+    def __init__(self):
+        super().__init__()
+        self._human = None
+    
+    def set_human(self, human):
+        self._human = human
+    
+    @classmethod
+    def create_computer(cls, choice):
+        personalities = {
+            'normal': Normal(),
+            'r2d2': R2d2(), 
+            'hal': Hal(),
+            'daneel': Daneel()
+        }
+        return personalities[choice]
+
+class Normal(Computer):
     def __init__(self):
         super().__init__()
 
     def choose(self):
         choice = random.choice(Player.CHOICES)
+        self.move = Move.create_move(choice)
+        self._history.append(choice)
+
+class R2d2(Computer):
+    def __init__(self):
+        super().__init__()
+
+    def choose(self):
+        choice = 'rock'
+        self.move = Move.create_move(choice)
+        self._history.append(choice)
+
+class Hal(Computer):
+    def __init__(self):
+        super().__init__()
+
+    def choose(self):
+        hal_choices = ('rock', 'paper', 'scissors', 'scissors', 'scissors', 'scissors', 'lizard', 'spock')
+        choice = random.choice(hal_choices)
+        self.move = Move.create_move(choice)
+        self._history.append(choice)
+
+class Daneel(Computer):
+    def __init__(self):
+        super().__init__()
+    
+    def choose(self):
+        choice = self._human.history[0]
         self.move = Move.create_move(choice)
         self._history.append(choice)
 
@@ -87,10 +135,17 @@ class Spock(Move):
 class RPSGame:
     def __init__(self):
         # The Player objects are collaborators of RPSGame
-        self._human = Human()
-        self._computer = Computer()
-        self._total_games = 0
-        self.get_games()
+        self.new_game()
+    
+    @property
+    def human(self):
+        return self._human
+    
+    def create_computer(self):
+        personality = random.choice(Computer.PERSONALITIES)
+        computer = Computer.create_computer(personality)
+        computer.set_human(self._human)
+        return computer
         
     def get_games(self):
         while True:
@@ -151,14 +206,22 @@ class RPSGame:
         choice = input()[0].upper()
         return choice == 'Y'
     
+    
+    # NEED TO FIX BELOW BUT RIGHT IDEA:
+    def new_game(self):
+        self._human = Human()
+        self._computer = self.create_computer()
+        self._human.score = 0
+        self._computer.score = 0
+        self._total_games = 0
+
     def play(self):
         self._display_welcome_message()
         while True:
-            self._human.score = 0
-            self._computer.score = 0
-            
+            self.get_games()
             while self._continue_playing():
-                self._display_history()
+                if self._human.history:
+                    self._display_history()
                 self._human.choose()
                 self._computer.choose()
                 self._display_round_winner()
@@ -166,6 +229,7 @@ class RPSGame:
             self._display_winner()
             if not self._play_again():
                 break
+            self.new_game()
         self._display_goodbye_message()
         
 game = RPSGame()

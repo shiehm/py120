@@ -4,7 +4,7 @@ class KrispyKreme:
         self.glazing = glazing
 
     def __str__(self):
-        filling = 'Plain' if self.filling == None else self.filling
+        filling = self.filling or 'Plain'
         glazing = '' if self.glazing == None else f' with {self.glazing}'
         return f'{filling}{glazing}'
 

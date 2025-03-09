@@ -42,17 +42,21 @@ Mapping:
 """
 
 class Board:
+    EMPTY = ' '
+    PLAYER = 'X'
+    COMPUTER = 'O'
+    
     def __init__(self):
-        squares = {
-            1: ' ',
-            2: ' ',
-            3: ' ',
-            4: ' ',
-            5: ' ',
-            6: ' ',
-            7: ' ',
-            8: ' ',
-            9: ' '
+        self.squares = {
+            1: Board.EMPTY,
+            2: Board.EMPTY,
+            3: Board.EMPTY,
+            4: Board.EMPTY,
+            5: Board.EMPTY,
+            6: Board.EMPTY,
+            7: Board.EMPTY,
+            8: Board.EMPTY,
+            9: Board.EMPTY
         }
     
     def display(self):

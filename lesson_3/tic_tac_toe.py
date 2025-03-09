@@ -41,23 +41,11 @@ Mapping:
     - Assess Winner
 """
 
+import random
+
 class Board:
-    EMPTY = ' '
-    PLAYER = 'X'
-    COMPUTER = 'O'
-    
     def __init__(self):
-        self.squares = {
-            1: Board.EMPTY,
-            2: Board.EMPTY,
-            3: Board.EMPTY,
-            4: Board.EMPTY,
-            5: Board.EMPTY,
-            6: Board.EMPTY,
-            7: Board.EMPTY,
-            8: Board.EMPTY,
-            9: Board.EMPTY
-        }
+        self.squares = {key: Square() for key in range(1,10)}
     
     def display(self):
         line = '---+---+---'
@@ -67,52 +55,72 @@ class Board:
         print(f' {self.squares[4]} | {self.squares[5]} | {self.squares[6]} ')
         print(line)
         print(f' {self.squares[7]} | {self.squares[8]} | {self.squares[9]} ')
+    
+    def mark_square(self, key, marker):
+        self.squares[key].marker = marker
 
 class Square:
-    def __init__(self):
-        pass
+    INITIAL_MARKER = " "
+    HUMAN_MARKER = "X"
+    COMPUTER_MARKER = "O"
+    
+    def __init__(self, marker=INITIAL_MARKER):
+        self.marker = marker
+    
+    def __str__(self):
+        return self.marker
+    
+    @property
+    def marker(self):
+        return self._marker
+    
+    @marker.setter
+    def marker(self, marker):
+        self._marker = marker
 
 class Row:
     def __init__(self):
         pass
 
-class Marker:
-    def __init__(self):
-        pass
-
 class Player:
-    def __init__(self):
-        pass
-
-    def mark(self):
-        pass
+    def __init__(self, marker):
+        self.marker = marker
+    
+    @property
+    def marker(self):
+        return self._marker
+    
+    @marker.setter
+    def marker(self, marker):
+        self._marker = marker
     
     def play(self):
         pass
 
 class Human(Player):
     def __init__(self):
-        pass
+        super().__init__(Square.HUMAN_MARKER)
 
 class Computer(Player):
     def __init__(self):
-        pass
+        super().__init__(Square.COMPUTER_MARKER)
 
 # Orchestration Engine: a class that controls the flow of the app / part of the app
 class TTTGame:
     def __init__(self):
         self.board = Board()
+        self.human = Human()
+        self.computer = Computer()
 
     def play(self):
         self.display_welcome_message()
         
         while True:
-            self.first_player_move()
-            
+            self.human_move()
             if self.is_game_over():
                 break
             
-            self.second_player_move()
+            self.computer_move()
             if self.is_game_over():
                 break
             
@@ -139,13 +147,26 @@ class TTTGame:
             # return True 
         return False
     
-    def first_player_move(self):
-        # Stub
-        pass
+    def human_move(self):
+        choice = None
+        while True:
+            choice = input('Choose a square between 1-9: ')
+            try:
+                choice = int(choice)
+                if 1 <= choice <= 9:
+                    break
+            except ValueError:
+                pass
+            
+            print('Please enter a number between 1-9.')
+            print()
+        
+        self.board.mark_square(choice, Square.HUMAN_MARKER)
     
-    def second_player_move(self):
-        # Stub
-        pass
+    def computer_move(self):
+        # Need to take out squares already taken
+        choice = random.randint(1, 9)
+        self.board.mark_square(choice, Square.COMPUTER_MARKER)
 
 
 game = TTTGame()

@@ -42,6 +42,7 @@ Mapping:
 """
 
 import random
+import os
 
 class Board:
     def __init__(self):
@@ -58,7 +59,15 @@ class Board:
     
     def mark_square(self, key, marker):
         self.squares[key].marker = marker
-
+    
+    def empty_squares(self):
+        return [key for key, value in self.squares.items() if value.marker == Square.INITIAL_MARKER]
+    
+    def is_full(self):
+        if not self.empty_squares():
+            return True
+        return False
+    
 class Square:
     INITIAL_MARKER = " "
     HUMAN_MARKER = "X"
@@ -78,10 +87,6 @@ class Square:
     def marker(self, marker):
         self._marker = marker
 
-class Row:
-    def __init__(self):
-        pass
-
 class Player:
     def __init__(self, marker):
         self.marker = marker
@@ -93,9 +98,6 @@ class Player:
     @marker.setter
     def marker(self, marker):
         self._marker = marker
-    
-    def play(self):
-        pass
 
 class Human(Player):
     def __init__(self):
@@ -107,15 +109,29 @@ class Computer(Player):
 
 # Orchestration Engine: a class that controls the flow of the app / part of the app
 class TTTGame:
+    WINNING_COMBOS = (
+            (1, 2, 3),
+            (4, 5, 6),
+            (7, 8, 9),
+            (1, 5, 9),
+            (3, 5, 7),
+            (1, 4, 7),
+            (2, 5, 9),
+            (3, 6, 9)
+            )
+    
     def __init__(self):
         self.board = Board()
         self.human = Human()
         self.computer = Computer()
+        self.winner = None
 
     def play(self):
         self.display_welcome_message()
         
         while True:
+            self.board.display()
+            
             self.human_move()
             if self.is_game_over():
                 break
@@ -124,16 +140,15 @@ class TTTGame:
             if self.is_game_over():
                 break
             
-            # temporary program end 
-            break
-        
         self.board.display()
         self.display_results()
         self.display_goodbye_message()
     
     def display_results(self):
-        # Stub
-        pass
+        if self.winner:
+            print(f'The winner is {self.winner}!')
+        else:
+            print('It is a Tie!')
     
     def display_welcome_message(self):
         print('~Welcome~ to tic-tac-toe')
@@ -141,19 +156,36 @@ class TTTGame:
     def display_goodbye_message(self):
         print('~Thanks~ for playing tic-tac-toe!')
     
+    def winning_rows(self, player, row):
+        board_squares = self.board.squares
+        markers = [board_squares[key].marker for key in row]
+        return markers.count(player.marker)
+    
+    def three_in_a_row(self, player, row):
+        return self.winning_rows(player, row) == 3
+    
+    def someone_won(self):
+        for row in TTTGame.WINNING_COMBOS:
+            if self.three_in_a_row(self.human, row):
+                self.winner = 'Human'
+                return True
+            elif self.three_in_a_row(self.computer, row):
+                self.winner = 'Computer'
+                return True
+        
+        return False    
+    
     def is_game_over(self):
-        # Stub
-        # if 3 in a row:
-            # return True 
-        return False
+        return self.board.is_full() or self.someone_won()
     
     def human_move(self):
         choice = None
         while True:
-            choice = input('Choose a square between 1-9: ')
+            valid_choices = self.board.empty_squares()
+            choice = input(f'Choose a square in {valid_choices}: ')
             try:
                 choice = int(choice)
-                if 1 <= choice <= 9:
+                if choice in valid_choices:
                     break
             except ValueError:
                 pass
@@ -165,7 +197,8 @@ class TTTGame:
     
     def computer_move(self):
         # Need to take out squares already taken
-        choice = random.randint(1, 9)
+        valid_choices = self.board.empty_squares()
+        choice = random.choice(valid_choices)
         self.board.mark_square(choice, Square.COMPUTER_MARKER)
 
 

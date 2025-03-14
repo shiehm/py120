@@ -116,32 +116,57 @@ class TTTGame:
             (1, 5, 9),
             (3, 5, 7),
             (1, 4, 7),
-            (2, 5, 9),
+            (1, 5, 9),
             (3, 6, 9)
             )
+    
+    @staticmethod
+    def _join_or(lst, separator=', ', conjunction='or'):
+        if len(lst) > 1:
+            new_lst = [str(num) for num in lst]
+            new_lst[-1] = f'{conjunction} {lst[-1]}'
+            return separator.join(new_lst)
+        else:
+            return lst[0]
     
     def __init__(self):
         self.board = Board()
         self.human = Human()
         self.computer = Computer()
         self.winner = None
-
+    
+    def play_again(self):
+        again = input('Play again? (y/n): ')
+        while again[0].casefold() not in ['y', 'n']:
+            print('Please enter yes or no: ')
+            again = input()
+            
+        if again.startswith('y'):
+            self.board = Board()
+            return True
+        else:
+            return False 
+    
     def play(self):
         self.display_welcome_message()
         
-        while True:
+        play_again = True
+        while play_again:
+            while True:
+                self.board.display()
+                
+                self.human_move()
+                if self.is_game_over():
+                    break
+                
+                self.computer_move()
+                if self.is_game_over():
+                    break
+                
             self.board.display()
+            self.display_results()
+            play_again = self.play_again()
             
-            self.human_move()
-            if self.is_game_over():
-                break
-            
-            self.computer_move()
-            if self.is_game_over():
-                break
-            
-        self.board.display()
-        self.display_results()
         self.display_goodbye_message()
     
     def display_results(self):
@@ -182,7 +207,7 @@ class TTTGame:
         choice = None
         while True:
             valid_choices = self.board.empty_squares()
-            choice = input(f'Choose a square in {valid_choices}: ')
+            choice = input(f'Choose a square in {TTTGame._join_or(valid_choices)}: ')
             try:
                 choice = int(choice)
                 if choice in valid_choices:

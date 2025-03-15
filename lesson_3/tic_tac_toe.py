@@ -46,6 +46,9 @@ import os
 
 class Board:
     def __init__(self):
+        self.reset()
+    
+    def reset(self):
         self.squares = {key: Square() for key in range(1,10)}
     
     def display(self):
@@ -90,6 +93,7 @@ class Square:
 class Player:
     def __init__(self, marker):
         self.marker = marker
+        self.score = 0
     
     @property
     def marker(self):
@@ -110,14 +114,14 @@ class Computer(Player):
 # Orchestration Engine: a class that controls the flow of the app / part of the app
 class TTTGame:
     WINNING_COMBOS = (
-            (1, 2, 3),
-            (4, 5, 6),
-            (7, 8, 9),
-            (1, 5, 9),
-            (3, 5, 7),
-            (1, 4, 7),
-            (1, 5, 9),
-            (3, 6, 9)
+            (1, 2, 3), # Horizontal
+            (4, 5, 6), # Horizontal
+            (7, 8, 9), # Horizontal
+            (1, 5, 9), # Diagonal
+            (3, 5, 7), # Diagonal
+            (1, 4, 7), # Vertical
+            (2, 5, 8), # Vertical
+            (3, 6, 9)  # Vertical
             )
     
     @staticmethod
@@ -134,38 +138,59 @@ class TTTGame:
         self.human = Human()
         self.computer = Computer()
         self.winner = None
+        self.pick_first_player()
+    
+    def pick_first_player(self):
+        first = input('Who goes first? (Computer or Human?): ')
+        while first[0].casefold() not in ['c', 'h']:
+            print('Please enter C for computer or H for human: ')
+            first = input()
+        
+        if first.startswith('c'):
+            self.current_player = self.computer
+        elif first.startswith('h'):
+            self.current_player = self.human
+    
+    def toggle_player(self):
+        if self.current_player == self.human:
+            self.current_player = self.computer
+        else:
+            self.current_player = self.human
+    
+    def player_moves(self, player):
+        if player == self.human:
+            self.human_move()
+        elif player == self.computer:
+            self.computer_move()
     
     def play_again(self):
         again = input('Play again? (y/n): ')
         while again[0].casefold() not in ['y', 'n']:
-            print('Please enter yes or no: ')
+            print('Please enter yes or no (y/n): ')
             again = input()
-            
-        if again.startswith('y'):
-            self.board = Board()
-            return True
-        else:
-            return False 
+        return again.startswith('y')
     
+    def play_once(self):
+        self.board.reset()
+        self.winner = None
+        while True:
+            self.board.display()
+            self.player_moves(self.current_player)
+            if self.is_game_over():
+                break
+            self.toggle_player()
+        
+        self.board.display()
+        self.display_results()
+        
     def play(self):
         self.display_welcome_message()
         
         play_again = True
         while play_again:
-            while True:
-                self.board.display()
-                
-                self.human_move()
-                if self.is_game_over():
-                    break
-                
-                self.computer_move()
-                if self.is_game_over():
-                    break
-                
-            self.board.display()
-            self.display_results()
+            self.play_once()
             play_again = self.play_again()
+            self.toggle_player()
             
         self.display_goodbye_message()
     
@@ -174,6 +199,9 @@ class TTTGame:
             print(f'The winner is {self.winner}!')
         else:
             print('It is a Tie!')
+        
+        print(f'Human Wins: {self.human.score}')
+        print(f'Computer Wins: {self.computer.score}')
     
     def display_welcome_message(self):
         print('~Welcome~ to tic-tac-toe')
@@ -188,14 +216,26 @@ class TTTGame:
     
     def three_in_a_row(self, player, row):
         return self.winning_rows(player, row) == 3
+        
+    def two_in_a_row(self, player, row):
+        return self.winning_rows(player, row) == 2
+    
+    def identify_winning_move(self, player):
+        for row in TTTGame.WINNING_COMBOS:
+            if self.two_in_a_row(player, row):
+                for key in row:
+                    if key in self.board.empty_squares():
+                        return key
     
     def someone_won(self):
         for row in TTTGame.WINNING_COMBOS:
             if self.three_in_a_row(self.human, row):
                 self.winner = 'Human'
+                self.human.score += 1
                 return True
             elif self.three_in_a_row(self.computer, row):
                 self.winner = 'Computer'
+                self.computer.score += 1
                 return True
         
         return False    
@@ -221,11 +261,22 @@ class TTTGame:
         self.board.mark_square(choice, Square.HUMAN_MARKER)
     
     def computer_move(self):
-        # Need to take out squares already taken
         valid_choices = self.board.empty_squares()
-        choice = random.choice(valid_choices)
+        
+        if self.identify_winning_move(self.computer):
+            choice = self.identify_winning_move(self.computer)
+            print('Computer is going offensive!')
+        elif self.identify_winning_move(self.human):
+            choice = self.identify_winning_move(self.human)
+            print('Computer is going defensive!')
+        elif 5 in valid_choices:
+            choice = 5
+            print('Computer is taking the middle square!')
+        else:
+            choice = random.choice(valid_choices)
+            print('Computer is choosing randomly!')
+        
         self.board.mark_square(choice, Square.COMPUTER_MARKER)
-
 
 game = TTTGame()
 game.play()
